@@ -120,6 +120,10 @@ administrador e usuário estão em `test/helpers/auth.helpers.js`, nas funções
 As configurações usadas pela aplicação e pelos testes são carregadas com **Dotenv** a partir do
 arquivo `.env`, que deve permanecer fora do controle de versão.
 
+Os testes também são executados automaticamente pelo GitHub Actions em todo `push` ou
+`pull_request` direcionado à branch `main`. A pipeline inicia um MongoDB de teste, instala as
+dependências com `npm ci` e executa `npm test`.
+
 ### Configuração do MongoDB
 
 Para configurar a instância do MongoDB (local, Atlas ou container), defina `MONGODB_URI` no arquivo

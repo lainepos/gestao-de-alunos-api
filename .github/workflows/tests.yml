@@ -9,6 +9,20 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+
+    env:
+      MONGODB_URI: mongodb://127.0.0.1:27017/gestao-de-alunos-test
+      JWT_SECRET: segredo-dev-gestao-de-alunos-test
+      JWT_EXPIRES_IN: 8h
+      BASE_URL: http://localhost:3000
+      ADMIN_EMAIL: admin@escola.com
+      ADMIN_PASSWORD: admin123
+      USER_EMAIL: ana.souza@example.com
+      STUDENT_PASSWORD: 123456
+      INVALID_PASSWORD: senha-incorreta
 
     services:
       mongodb:
@@ -36,13 +50,3 @@ jobs:
 
       - name: Executar testes
         run: npm test
-        env:
-          MONGODB_URI: mongodb://127.0.0.1:27017/gestao-de-alunos-test
-          JWT_SECRET: segredo-dev-gestao-de-alunos-test
-          JWT_EXPIRES_IN: 8h
-          BASE_URL: http://localhost:3000
-          ADMIN_EMAIL: admin@escola.com
-          ADMIN_PASSWORD: admin123
-          USER_EMAIL: ana.souza@example.com
-          STUDENT_PASSWORD: 123456
-          INVALID_PASSWORD: senha-incorreta
