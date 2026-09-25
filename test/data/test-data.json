@@ -1,0 +1,22 @@
+{
+  "login": {
+    "emailInexistente": "nao-existe@example.com",
+    "senhaInvalida": "senha-invalida-automatizada"
+  },
+  "novoAluno": {
+    "nome": "Aluno de Teste",
+    "email": "aluno.teste.automatizado@example.com",
+    "matricula": "9999001",
+    "senhaEnv": "STUDENT_PASSWORD"
+  },
+  "trabalho": {
+    "alunoId": "aluno-ana-souza",
+    "disciplinaId": "disciplina-matematica",
+    "titulo": "Trabalho automatizado de testes",
+    "descricao": "Entrega criada pelo teste automatizado."
+  },
+  "trabalhoInvalido": {
+    "disciplinaId": "disciplina-historia",
+    "titulo": "Trabalho sem matricula"
+  }
+}

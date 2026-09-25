@@ -94,17 +94,39 @@ npm start
 npm run dev
 ```
 
-O servidor sobe por padrão em `http://localhost:3000` (pode ser alterado com a variável de
-ambiente `PORT`).
+O servidor sobe no endereço definido por `BASE_URL` no arquivo `.env`.
+
+### Testes automatizados
+
+Execute os testes a partir da raiz do projeto, onde está o `package.json`:
+
+```powershell
+cd "C:\Projetos\pós\gestao-de-alunos-api"
+npm test
+```
+
+Os fluxos estão organizados nestes arquivos:
+
+- `test/login-admin.test.js`
+- `test/cadastro-de-aluno.test.js`
+- `test/login-usuario.test.js`
+- `test/entrega-de-trabalho.test.js`
+
+Os testes usam **Mocha**, **SuperTest** e **Chai**. Os dados dos cenários ficam no arquivo
+`test/data/test-data.json`, seguindo o padrão Data-Driven Testing. Os logins reutilizáveis de
+administrador e usuário estão em `test/helpers/auth.helpers.js`, nas funções `loginAdmin()` e
+`loginUsuario()`.
+
+As configurações usadas pela aplicação e pelos testes são carregadas com **Dotenv** a partir do
+arquivo `.env`, que deve permanecer fora do controle de versão.
 
 ### Configuração do MongoDB
 
-Por padrão, a API se conecta a um MongoDB local em
-`mongodb://127.0.0.1:27017/gestao-de-alunos`. Para usar outra instância (ex.: MongoDB Atlas ou um
-container), defina a variável de ambiente `MONGODB_URI` antes de subir o servidor:
+Para configurar a instância do MongoDB (local, Atlas ou container), defina `MONGODB_URI` no arquivo
+`.env` antes de subir o servidor:
 
 ```bash
-MONGODB_URI="mongodb://usuario:senha@host:27017/nome-do-banco" npm start
+npm start
 ```
 
 Na primeira execução com o banco vazio, a API popula automaticamente as coleções com o conjunto de
@@ -116,8 +138,8 @@ seguintes, os dados já existentes são preservados.
 A documentação completa de todas as rotas, parâmetros, corpos de requisição e respostas está
 disponível em:
 
-- **Swagger UI (interface interativa):** `http://localhost:3000/api-docs`
-- **Arquivo YAML bruto servido pela API:** `http://localhost:3000/api-docs.yaml`
+- **Swagger UI (interface interativa):** `${BASE_URL}/api-docs`
+- **Arquivo YAML bruto servido pela API:** `${BASE_URL}/api-docs.yaml`
 - **Fonte do arquivo no repositório:** [`docs/openapi.yaml`](docs/openapi.yaml)
 
 A raiz da API (`GET /`) também retorna um JSON simples com o nome, descrição e o link para a
@@ -131,9 +153,9 @@ exceto `POST /api/auth/login`.
 1. Faça login informando `email` e `senha` de um administrador ou de um aluno já cadastrado:
 
    ```bash
-   curl -X POST http://localhost:3000/api/auth/login \
+   curl -X POST "$BASE_URL/api/auth/login" \
      -H "Content-Type: application/json" \
-     -d '{"email":"admin@escola.com","senha":"admin123"}'
+     -d "{\"email\":\"$ADMIN_EMAIL\",\"senha\":\"$ADMIN_PASSWORD\"}"
    ```
 
    A resposta traz o `token` e os dados básicos do usuário autenticado (`id`, `nome`, `email`,
@@ -142,7 +164,7 @@ exceto `POST /api/auth/login`.
 2. Envie o token nas próximas requisições:
 
    ```bash
-   curl http://localhost:3000/api/admin/alunos \
+  curl "$BASE_URL/api/admin/alunos" \
      -H "Authorization: Bearer <token>"
    ```
 
@@ -171,15 +193,15 @@ para demonstração.
 
 | id               | nome                       | email             | senha    |
 |------------------|-----------------------------|-------------------|----------|
-| `admin-principal`| Administrador do Sistema   | admin@escola.com  | admin123 |
+| `admin-principal`| Administrador do Sistema   | `$ADMIN_EMAIL`  | `$ADMIN_PASSWORD` |
 
 ### Alunos (`/api/admin/alunos`)
 
 | id                   | nome          | email                       | matrícula | senha  |
 |----------------------|---------------|------------------------------|-----------|--------|
-| `aluno-ana-souza`    | Ana Souza     | ana.souza@example.com       | 2024001   | 123456 |
-| `aluno-bruno-lima`   | Bruno Lima    | bruno.lima@example.com      | 2024002   | 123456 |
-| `aluno-carla-mendes` | Carla Mendes  | carla.mendes@example.com    | 2024003   | 123456 |
+| `aluno-ana-souza`    | Ana Souza     | ana.souza@example.com       | 2024001   | `$STUDENT_PASSWORD` |
+| `aluno-bruno-lima`   | Bruno Lima    | bruno.lima@example.com      | 2024002   | `$STUDENT_PASSWORD` |
+| `aluno-carla-mendes` | Carla Mendes  | carla.mendes@example.com    | 2024003   | `$STUDENT_PASSWORD` |
 
 ### Disciplinas (`/api/admin/disciplinas`)
 
@@ -221,38 +243,38 @@ para demonstração.
 
 ```bash
 # Login como admin
-ADMIN_TOKEN=$(curl -s -X POST http://localhost:3000/api/auth/login \
+ADMIN_TOKEN=$(curl -s -X POST "$BASE_URL/api/auth/login" \
   -H "Content-Type: application/json" \
-  -d '{"email":"admin@escola.com","senha":"admin123"}' | node -pe 'JSON.parse(require("fs").readFileSync(0)).token')
+  -d "{\"email\":\"$ADMIN_EMAIL\",\"senha\":\"$ADMIN_PASSWORD\"}" | node -pe 'JSON.parse(require("fs").readFileSync(0)).token')
 
 # Admin: listar alunos
-curl http://localhost:3000/api/admin/alunos -H "Authorization: Bearer $ADMIN_TOKEN"
+curl "$BASE_URL/api/admin/alunos" -H "Authorization: Bearer $ADMIN_TOKEN"
 
 # Admin: matricular a Carla em História
-curl -X POST http://localhost:3000/api/admin/disciplinas/disciplina-historia/matriculas \
+curl -X POST "$BASE_URL/api/admin/disciplinas/disciplina-historia/matriculas" \
   -H "Authorization: Bearer $ADMIN_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"alunoId":"aluno-carla-mendes"}'
 
 # Admin: lançar uma nota
-curl -X POST http://localhost:3000/api/admin/notas \
+curl -X POST "$BASE_URL/api/admin/notas" \
   -H "Authorization: Bearer $ADMIN_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"alunoId":"aluno-ana-souza","disciplinaId":"disciplina-matematica","valor":7.8,"tipo":"trabalho"}'
 
 # Login como aluno (Ana)
-ALUNO_TOKEN=$(curl -s -X POST http://localhost:3000/api/auth/login \
+ALUNO_TOKEN=$(curl -s -X POST "$BASE_URL/api/auth/login" \
   -H "Content-Type: application/json" \
-  -d '{"email":"ana.souza@example.com","senha":"123456"}' | node -pe 'JSON.parse(require("fs").readFileSync(0)).token')
+  -d "{\"email\":\"ana.souza@example.com\",\"senha\":\"$STUDENT_PASSWORD\"}" | node -pe 'JSON.parse(require("fs").readFileSync(0)).token')
 
 # Aluno: ver minhas disciplinas
-curl http://localhost:3000/api/alunos/aluno-ana-souza/disciplinas -H "Authorization: Bearer $ALUNO_TOKEN"
+curl "$BASE_URL/api/alunos/aluno-ana-souza/disciplinas" -H "Authorization: Bearer $ALUNO_TOKEN"
 
 # Aluno: ver minhas notas
-curl http://localhost:3000/api/alunos/aluno-ana-souza/notas -H "Authorization: Bearer $ALUNO_TOKEN"
+curl "$BASE_URL/api/alunos/aluno-ana-souza/notas" -H "Authorization: Bearer $ALUNO_TOKEN"
 
 # Aluno: registrar um trabalho
-curl -X POST http://localhost:3000/api/alunos/aluno-ana-souza/trabalhos \
+curl -X POST "$BASE_URL/api/alunos/aluno-ana-souza/trabalhos" \
   -H "Authorization: Bearer $ALUNO_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"disciplinaId":"disciplina-matematica","titulo":"Lista de Exercícios 2"}'

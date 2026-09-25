@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import Administrador from '../models/admin.model.js';
 import Aluno from '../models/aluno.model.js';
 import Disciplina from '../models/disciplina.model.js';
@@ -6,15 +7,16 @@ import Nota from '../models/nota.model.js';
 import Trabalho from '../models/trabalho.model.js';
 
 // Senha padrão de todos os alunos seedados, apenas para fins de teste/demonstração.
-const SENHA_PADRAO_ALUNO = '123456';
-const SENHA_PADRAO_ADMIN = 'admin123';
+const EMAIL_ADMIN = process.env.ADMIN_EMAIL;
+const SENHA_PADRAO_ALUNO = process.env.STUDENT_PASSWORD;
+const SENHA_PADRAO_ADMIN = process.env.ADMIN_PASSWORD;
 
 async function seedAdministradores() {
   await Administrador.create([
     {
       _id: 'admin-principal',
       nome: 'Administrador do Sistema',
-      email: 'admin@escola.com',
+      email: EMAIL_ADMIN,
       senha: SENHA_PADRAO_ADMIN,
     },
   ]);
